@@ -1,0 +1,7 @@
+firebase-admin
+google-cloud-firestore
+langchain
+llama-index
+llama-index-llms-langchain
+google-generativeai
+langchain-google-genai
