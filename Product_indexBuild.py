@@ -13,17 +13,17 @@ db= firestore.client()
 
 from google.cloud.firestore_v1 import FieldFilter
 
-def search_products(category: str = "", color: str = "", size: str = "") -> None:
+def search_products(category, color, size):
     query_ref = db.collection("products")
 
     if category:
-        query_ref = query_ref.where(filter=FieldFilter("category", "==", category))
+        query_ref = query_ref.where(filter=FieldFilter("index", "array_contains", category))
     if color:
         query_ref = query_ref.where(filter=FieldFilter("color", "==", color))
     if size:
         query_ref = query_ref.where(filter=FieldFilter("size", "==", size))
 
-    results = query_ref.get()
+    results = query_ref.stream()
     if not results:
         print("No matching products found.")
     else:

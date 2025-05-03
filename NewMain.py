@@ -56,17 +56,17 @@ Query: {query}''')
             chat_h.append({"role": "user", "content": query})
             chat_prompt = PromptTemplate(
             input_variables=["query"],
-            template = '''Extract all relevant product filters (category, color, size) based on the user query.
-Return the combined filters in structured JSON.
+            template = '''Extract relevant product filters (category, color, size) based on the user query.
+Return the filters as a structured JSON object, listing the extracted values under each filter.
 
 Query:
 {query}
 
-Complete Product Filters (JSON):
+Extracted Product Filters (JSON):
 {{
-  "category": [],
-  "color": [],
-  "size": []
+  "category": [],  # List of extracted categories (e.g., ["tshirt", "dress"])
+  "color": [],     # List of extracted colors (e.g., ["black", "blue"])
+  "size": []       # List of extracted sizes (e.g., ["M", "L", "XL"])
 }}
 ''')
             intent_run = chat_prompt | llm
@@ -91,7 +91,8 @@ Complete Product Filters (JSON):
             category_str = ', '.join(category)
             color_str = ', '.join(color)
             size_str = ', '.join(size)
-            search_products(category=category_str, color=color_str, size=size_str)
+            print(category_str,color_str,size_str)
+            search_products(category_str, color_str,size_str)
         else:
             print("ohh i can't handle it. ")
         
