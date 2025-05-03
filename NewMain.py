@@ -1,4 +1,4 @@
-from Product_indexBuild import product_index,faq_index
+from Product_indexBuild import product_index,faq_index,search_products
 from Load_proIndex import load_product_engines,save_chat_to_firebase,load_faq_engines
 from langchain.prompts import PromptTemplate
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -54,23 +54,44 @@ Query: {query}''')
         elif results=='product':
             chat_history = get_last_line(chat_h)
             chat_h.append({"role": "user", "content": query})
-            print(chat_history)
             chat_prompt = PromptTemplate(
-            input_variables=["query","chat_history"],
-            template = '''Analyze the full conversation and extract all relevant product filters (such as category, color, gender, size, price, etc.) based on the latest user query and previous queries.
+            input_variables=["query"],
+            template = '''Extract all relevant product filters (category, color, size) based on the user query.
 Return the combined filters in structured JSON.
 
-Chat History:
-{chat_history}
-
-Latest Query:
+Query:
 {query}
 
 Complete Product Filters (JSON):
+{{
+  "category": [],
+  "color": [],
+  "size": []
+}}
 ''')
             intent_run = chat_prompt | llm
-            results = intent_run.invoke({"query": query,"chat_history":chat_history}).content.strip().lower()
+            results = intent_run.invoke({"query": query}).content.strip().lower()
             print(results)
+            import re
+            # Define regex patterns to extract category and color lists
+            category_pattern = r'"category":\s*\[(.*?)\]'
+            color_pattern = r'"color":\s*\[(.*?)\]'
+            size_pattern = r'"size":\s*\[(.*?)\]'
+            # Extract category and color lists using regex
+            category_match = re.search(category_pattern, results)
+            color_match = re.search(color_pattern, results)
+            size_match = re.search(size_pattern, results)
+            # Parse the matched strings into actual lists
+            category = category_match.group(1).replace('"', '').split(',') if category_match else []
+            color = color_match.group(1).replace('"', '').split(',') if color_match else []
+            size = size_match.group(1).replace('"', '').split(',') if size_match else []
+            # Print the extracted data
+            print("Category:", category)
+            print("Color:", color)
+            category_str = ', '.join(category)
+            color_str = ', '.join(color)
+            size_str = ', '.join(size)
+            search_products(category=category_str, color=color_str, size=size_str)
         else:
             print("ohh i can't handle it. ")
         

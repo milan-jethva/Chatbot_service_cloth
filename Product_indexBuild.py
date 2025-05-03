@@ -11,15 +11,17 @@ cred = credentials.Certificate('serviceAccountKey.json')
 app = firebase_admin.initialize_app(cred)
 db= firestore.client()
 
-category = "Dresses"
-price = 1599
-# 🔍 Query Firestore using filters
-def search_products(*, category: str, size: str) -> None:
+from google.cloud.firestore_v1 import FieldFilter
+
+def search_products(category: str = "", color: str = "", size: str = "") -> None:
     query_ref = db.collection("products")
+
     if category:
-        query_ref = query_ref.where(field_path="category", op_string="==", value=category)
+        query_ref = query_ref.where(filter=FieldFilter("category", "==", category))
+    if color:
+        query_ref = query_ref.where(filter=FieldFilter("color", "==", color))
     if size:
-        query_ref = query_ref.where(field_path="size", op_string="==", value=size)
+        query_ref = query_ref.where(filter=FieldFilter("size", "==", size))
 
     results = query_ref.get()
     if not results:
