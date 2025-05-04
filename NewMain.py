@@ -1,11 +1,12 @@
-from Product_indexBuild import product_index,faq_index,search_products
-from Load_proIndex import load_product_engines,save_chat_to_firebase,load_faq_engines
+from faq_index_build import product_index,faq_index,search_products
+from faq_index_build import load_product_engines,save_chat_to_firebase,load_faq_engines
 from langchain.prompts import PromptTemplate
 from langchain_google_genai import ChatGoogleGenerativeAI
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.core import Settings
+from smartIndex import smartIndex
 import os
-
+import re
 os.environ["GOOGLE_API_KEY"] = "AIzaSyDP459yeAgZvP0wlqppLt5zSusBtux1sd0"
 llm = ChatGoogleGenerativeAI(
     model="gemini-2.0-flash",
@@ -16,9 +17,9 @@ Settings.llm = llm
 Settings.embed_model = HuggingFaceEmbedding(
     model_name="BAAI/bge-small-en-v1.5"
     )
-product_index()
+#product_index()
 faq_index()
-product_query_engine = load_product_engines()
+#product_query_engine = load_product_engines()
 faq_query_engine= load_faq_engines()
 
 def get_last_line(chat_history):
@@ -26,6 +27,9 @@ def get_last_line(chat_history):
         if message.get("role") == "user":
             return message.get("content", "").strip()
     return ""
+def normalize_category(text):
+    # Convert to lowercase and remove non-alphanumeric characters
+    return re.sub(r'[^a-z0-9]', '', text.lower())
 
 def chatbot():
     chat_h = []
@@ -54,25 +58,25 @@ Query: {query}''')
         elif results=='product':
             chat_history = get_last_line(chat_h)
             chat_h.append({"role": "user", "content": query})
-            chat_prompt = PromptTemplate(
-            input_variables=["query"],
-            template = '''Extract relevant product filters (category, color, size) based on the user query.
-Return the filters as a structured JSON object, listing the extracted values under each filter.
+            smartIndex(query)
+            #chat_prompt = PromptTemplate(
+            #input_variables=["query"],
+            #'''template = '''Extract relevant product filters (category, color, size) based on the user query.
+#Return the filters as a structured JSON object, listing the extracted values under each filter.
 
-Query:
-{query}
+#Query:
+#{query}
 
-Extracted Product Filters (JSON):
-{{
-  "category": [],  # List of extracted categories (e.g., ["tshirt", "dress"])
-  "color": [],     # List of extracted colors (e.g., ["black", "blue"])
-  "size": []       # List of extracted sizes (e.g., ["M", "L", "XL"])
-}}
-''')
-            intent_run = chat_prompt | llm
+#Extracted Product Filters (JSON):
+#{{
+#  "category": [],  # List of extracted categories (e.g., ["tshirt", "dress"])
+#  "color": [],     # List of extracted colors (e.g., ["black", "blue"])
+#  "size": []       # List of extracted sizes (e.g., ["M", "L", "XL"])
+#}}
+#''')
+            '''intent_run = chat_prompt | llm
             results = intent_run.invoke({"query": query}).content.strip().lower()
             print(results)
-            import re
             # Define regex patterns to extract category and color lists
             category_pattern = r'"category":\s*\[(.*?)\]'
             color_pattern = r'"color":\s*\[(.*?)\]'
@@ -88,11 +92,12 @@ Extracted Product Filters (JSON):
             # Print the extracted data
             print("Category:", category)
             print("Color:", color)
-            category_str = ', '.join(category)
-            color_str = ', '.join(color)
-            size_str = ', '.join(size)
-            print(category_str,color_str,size_str)
-            search_products(category_str, color_str,size_str)
+            #category_str = ', '.join(category)
+            #color_str = ', '.join(color)
+            #size_str = ', '.join(size)
+            #category_norm = normalize_category(category_str)
+            #print(category_norm,color_str,size_str)
+            #search_products(category_norm, color_str,size_str)'''
         else:
             print("ohh i can't handle it. ")
         
