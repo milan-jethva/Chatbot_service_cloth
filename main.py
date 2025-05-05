@@ -33,15 +33,15 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-chat_h = []
-
+chat_product_history = []
+chat_faq_history=[]
 class Message(BaseModel):
     message: str
 
 @app.post("/chat")
 def chat_api(data: Message):
     query = data.message
-    chat_h.append({"role": "user", "content": query})
+    chat_product_history.append({"role": "user", "content": query})
 
     # Classify intent
     intent_prompt = PromptTemplate(
