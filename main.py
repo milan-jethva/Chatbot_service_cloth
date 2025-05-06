@@ -96,9 +96,10 @@ query: <short product query>
         new_ext_query = extract_query(results)
            
         product_result = smartIndex(new_ext_query)
+        print(product_result)
         
         chat_product_history.append({"role": "bot", "content": product_result})
-        return {"bot : ":results , "product":product_result}
+        return {"responce":product_result}
     else:
         return {"type": "unknown", "reply": "Sorry, I can't handle that."}
 

@@ -4,6 +4,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.core import Settings
 from smartIndex import smartIndex
+from smartIndexForfaq import smartIndexfaq
 import os
 import re
 os.environ["GOOGLE_API_KEY"] = "AIzaSyDP459yeAgZvP0wlqppLt5zSusBtux1sd0"
@@ -62,10 +63,11 @@ Query: {query}''')
         print(results)
         #print(type(results))
         if results=='faq':
-            chat_faq_history.append({"role": "user", "content": query}) #adding user query to list - faq
+            '''chat_faq_history.append({"role": "user", "content": query}) #adding user query to list - faq
             response = faq_query_engine.query(query)
             print("\nBot:", response.response)
-            chat_faq_history.append({"role": "bot", "content": response.response})
+            chat_faq_history.append({"role": "bot", "content": response.response})'''
+            print(smartIndexfaq(query))
         elif results=='product':
             chat_history = get_last_two_user_queries(chat_product_history)
             chat_product_history.append({"role": "user", "content": query})
